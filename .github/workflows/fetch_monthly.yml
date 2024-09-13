@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Python script
         run: |
-          python your_script.py
+          python fetch_monthly.py
 
       - name: Commit files
         run: |
