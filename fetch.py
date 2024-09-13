@@ -2,8 +2,6 @@ import requests
 import json
 import time
 
-# jakim_zones = ['KDH02']
-
 jakim_zones = [
   'JHR01', 'JHR02', 'JHR03', 'JHR04',
   'KDH01', 'KDH02', 'KDH03', 'KDH04', 'KDH05', 'KDH06', 'KDH07',
@@ -42,7 +40,7 @@ for zone in jakim_zones:
   else:
     print(f"Fetch data failed : {zone}")
     
-with open('data_month.json', 'w') as json_file:
-  print("Writing data_month.json")
+with open('data_monthly.json', 'w') as json_file:
+  print("Writing data_monthly.json")
   json.dump(data, json_file, indent=4)
-  print("Finished writing data_month.json")
+  print("Finished writing data_monthly.json")
