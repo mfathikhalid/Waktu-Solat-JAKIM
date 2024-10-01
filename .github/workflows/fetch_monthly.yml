@@ -33,7 +33,7 @@ jobs:
           git commit -m "Update at `date + "%m-%Y"`"
 
       - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
+        uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB.TOKEN }}
           branch: main
