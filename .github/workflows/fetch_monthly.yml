@@ -1,11 +1,8 @@
 name: Fetch Monthly Data
 
 on:
-  push:
-    branches:
-      - 'main'
-#   schedule:
-#     - cron: '00 16 30 * *' # Runs at 4 PM UTC (12 AM MYT on the 1st day of the month)
+  schedule:
+    - cron: '00 16 30 * *' # Runs at 4 PM UTC (12 AM MYT on the 1st day of the month)
 
 jobs:
   run-python:
