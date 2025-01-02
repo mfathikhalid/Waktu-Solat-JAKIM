@@ -41,13 +41,17 @@ for zone in jakim_zones:
     else:
         print(f"Fetch data failed : {zone}")
 
+# Create base folder 'data'
+base_folder = "data"
+os.makedirs(base_folder, exist_ok=True)
+
 # Organize data into year/month folders
 for zone, prayer_times in data.items():
     for entry in prayer_times:
         date = entry['date']  # Assuming the API response has 'date' in YYYY-MM-DD format
         year, month, _ = date.split('-')
 
-        folder_path = os.path.join(year)
+        folder_path = os.path.join(base_folder, year)
         os.makedirs(folder_path, exist_ok=True)
 
         file_path = os.path.join(folder_path, f"{month}.json")
