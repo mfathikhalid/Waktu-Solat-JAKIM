@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import time
@@ -23,24 +24,46 @@ url = "https://www.e-solat.gov.my/index.php"
 data = {}
 
 for zone in jakim_zones:
-  params = {
-    'r':'esolatApi/TakwimSolat',
-    'period': 'month',
-    'zone': zone
-  }
-  
-  print(f"Fetching data for : {zone}")
-  response = requests.get(url, params=params)
-  json_response = response.json()
-  
-  if response.status_code == 200:
-    print(f"Fetch data success : {zone}")
-    data[zone] = json_response['prayerTime']
-    time.sleep(2)
-  else:
-    print(f"Fetch data failed : {zone}")
-    
-with open('data_monthly.json', 'w') as json_file:
-  print("Writing data_monthly.json")
-  json.dump(data, json_file, indent=4)
-  print("Finished writing data_monthly.json")
+    params = {
+        'r': 'esolatApi/TakwimSolat',
+        'period': 'month',
+        'zone': zone
+    }
+
+    print(f"Fetching data for : {zone}")
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        print(f"Fetch data success : {zone}")
+        json_response = response.json()
+        data[zone] = json_response['prayerTime']
+        time.sleep(2)
+    else:
+        print(f"Fetch data failed : {zone}")
+
+# Organize data into year/month folders
+for zone, prayer_times in data.items():
+    for entry in prayer_times:
+        date = entry['date']  # Assuming the API response has 'date' in YYYY-MM-DD format
+        year, month, _ = date.split('-')
+
+        folder_path = os.path.join(year)
+        os.makedirs(folder_path, exist_ok=True)
+
+        file_path = os.path.join(folder_path, f"{month}.json")
+
+        # Load existing data if the file already exists
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                monthly_data = json.load(file)
+        else:
+            monthly_data = {}
+
+        # Add the current zone's prayer times to the monthly data
+        monthly_data[zone] = prayer_times
+
+        # Write updated data back to the file
+        with open(file_path, 'w') as file:
+            json.dump(monthly_data, file, indent=4)
+
+        print(f"Written data for {zone} in {file_path}")
