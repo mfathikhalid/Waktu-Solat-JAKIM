@@ -25,12 +25,14 @@ jobs:
         run: |
           python fetch_monthly.py
 
-      - name: Commit files
+      - name: Commit changes
         run: |
-          git config --local user.name "Github Action"
+          git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
+          git fetch origin main
+          git rebase origin/main || git rebase --abort
           git add -A
-          git commit -m "Update at `date + "%m-%Y"`"
+          git commit -m "Update at $(date +'%m-%Y')" || echo "No changes to commit"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
