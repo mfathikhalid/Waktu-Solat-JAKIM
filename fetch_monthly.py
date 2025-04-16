@@ -1,7 +1,16 @@
-import os
 import requests
 import json
 import time
+import os
+import datetime
+
+current_my = datetime.datetime.now().strftime("%m-%Y")
+
+data_dir = "data"
+if os.path.isdir(data_dir) == False:
+    # Create data directory if it doesn't exist
+    print("Creating data directory")
+    os.makedirs(data_dir, exist_ok=True)
 
 jakim_zones = [
   'JHR01', 'JHR02', 'JHR03', 'JHR04',
@@ -21,53 +30,38 @@ jakim_zones = [
 ]
 
 url = "https://www.e-solat.gov.my/index.php"
-data = {}
 
 for zone in jakim_zones:
+
+    zone_dir = os.path.join(data_dir, zone)
+    file_path = os.path.join(zone_dir, f"{current_my}.json")
+    
+    if os.path.isdir(zone_dir) == False:
+        # Create data directory if it doesn't exist
+        print(f"Creating {zone} directory")
+        os.makedirs(zone_dir, exist_ok=True)
+        
+    print(f"Fetching data ({zone})")
     params = {
         'r': 'esolatApi/TakwimSolat',
         'period': 'month',
         'zone': zone
     }
-
-    print(f"Fetching data for : {zone}")
     response = requests.get(url, params=params)
 
     if response.status_code == 200:
-        print(f"Fetch data success : {zone}")
+        print(f"Fetch data success ({zone})")
         json_response = response.json()
-        data[zone] = json_response['prayerTime']
-        time.sleep(2)
-    else:
-        print(f"Fetch data failed : {zone}")
-
-# Create base folder 'data'
-base_folder = "data"
-os.makedirs(base_folder, exist_ok=True)
-
-# Organize data into year/month folders
-for zone, prayer_times in data.items():
-    for entry in prayer_times:
-        date = entry['date']  # Assuming the API response has 'date' in YYYY-MM-DD format
-        year, month, _ = date.split('-')
-
-        folder_path = os.path.join(base_folder, year)
-        os.makedirs(folder_path, exist_ok=True)
-
-        file_path = os.path.join(folder_path, f"{month}.json")
-
-        # Load existing data if the file already exists
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
-                monthly_data = json.load(file)
+        
+        if os.path.isfile(file_path) == False:
+          print("File not found, creating new file")
+          with open(file_path, 'w') as file:
+              json.dump(json_response['prayerTime'], file, indent=4)
+              print("Write to file success")
         else:
-            monthly_data = {}
-
-        # Add the current zone's prayer times to the monthly data
-        monthly_data[zone] = prayer_times
-
-        # Write updated data back to the file
-        with open(file_path, 'w') as file:
-            json.dump(monthly_data, file, indent=4)
-
-        print(f"Written data for {zone} in {file_path}")
+          print("File exists")
+    else:
+        print(f"Fetch data failed ({zone})")
+    
+    # Sleep for 2 seconds to avoid hitting the server too hard
+    time.sleep(2)
